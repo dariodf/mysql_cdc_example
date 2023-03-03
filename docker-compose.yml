@@ -1,0 +1,31 @@
+version: '3'
+services:
+  mysql:
+    image: mysql:latest
+    # restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: pass
+      MYSQL_DATABASE: example_db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: pass
+    volumes:
+      - ./mysql-data:/var/lib/mysql
+      - ./mysql-config:/etc/mysql/conf.d
+    ports:
+      - "3306:3306"
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  maxwell:
+    image: zendesk/maxwell
+    restart: on-failure
+    volumes:
+      - ./maxwell-config:/usr/local/etc/maxwell
+    command: ["./bin/maxwell", "--config", "/usr/local/etc/maxwell/config.properties"]
+    links:
+      - rabbitmq
+    
